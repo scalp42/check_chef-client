@@ -10,6 +10,10 @@ Please note that the check is meant to be ran from the Nagios server (hence "loc
 
 You also need to make sure that user "nagios" can ssh into the hosts failing.
 
+Finally, nagios user will need sudo privileges. Please add the following to your sudoers configuration (change according to your configuration) :
+
+	nagios ALL=(ALL) NOPASSWD:/sbin/service chef-client start, /sbin/service chef-client stop, /bin/rm /var/lock/subsys/chef-client, /usr/bin/chef-client
+
 # USAGE:
 
 Edit your nagios configuration to include something like this :
