@@ -1,0 +1,49 @@
+#!/bin/bash
+
+file="late_hosts"
+
+
+UNKNOWN_STATE=3
+CRITICAL_STATE=2
+WARNING_STATE=1
+OK_STATE=0
+
+green='32m'
+yellow='33m'
+red='31m'
+
+knife=`knife status`
+
+dead_hosts=`knife status | grep -E '31m' | grep -re "10" | awk -F ',' {'print $4'} | sed 's/ //' | egrep -v '^50.'`
+late_hosts=`knife status | grep -E '33m' | grep -re "10" | awk -F ',' {'print $4'} | sed 's/ //' | egrep -v '^50.'`
+
+#late_hosts=`knife status | grep -E '33m|31m' | awk -F ',' {'print $4'} | sed 's/ //'`
+count=`knife status | grep -E '33m|31m' | awk -F ',' {'print $4'} | sed 's/ //' | wc -l`
+
+count_dead=`knife status | grep -E '31m' | awk -F ',' {'print $4'} | sed 's/ //' | wc -l`
+count_late=`knife status | grep -E '33m' | awk -F ',' {'print $4'} | sed 's/ //' | wc -l`
+
+echo $dead_hosts > /tmp/dead_hosts
+echo $late_hosts > /tmp/late_hosts
+
+if [ $count == 0 ]
+	then echo "OK - chef-client hosts are on time"
+	exit ${OK_STATE}
+fi
+
+if [ $count_late -ge 1 ]
+	then 
+		if [ $count_dead -ge 1 ]
+			then echo "CRITICAL - chef-client hosts DEAD found"
+			exit ${CRITICAL_STATE}
+		else
+			echo "WARNING - chef-client hosts late"
+			exit ${WARNING_STATE}
+		fi
+	echo "Unable to determine the status of chef-client on the hosts"
+	exit ${UNKNOWN_STATE}
+fi
+	
+
+echo "Unable to determine the status of chef-client on the hosts"
+exit ${UNKNOWN_STATE}

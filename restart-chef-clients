@@ -1,0 +1,82 @@
+#!/bin/bash
+
+list_dead='/tmp/dead_hosts'
+list_late='/tmp/late_hosts'
+
+dead_hosts=`cat $list_dead`
+late_hosts=`cat $list_late`
+
+
+date=`date`
+
+#hostname=`hostname`
+#echo ""
+#echo "List of hosts to ssh in to restart chef-client"
+#echo ""
+#for toto in $dead_hosts;
+#do
+#	echo $toto
+#done
+
+#banner "" 
+
+case "$1" in
+OK)
+	;;
+UNKNOWN)
+	;;
+WARNING)
+	
+	case "$2" in
+	SOFT)
+		case "$3" in
+		3)
+			echo -n "Restarting late chef-client hosts (3rd soft critical state)..."
+			for ip in $late_hosts;
+			do
+				echo "${ip} - $date - restart LATE chef-client - SOFT"  >> /tmp/eventhandlers
+				ssh -q -t -o StrictHostKeyChecking=no nagios@${ip} 'sudo /sbin/service chef-client stop ; sudo /sbin/service chef-client start ; sudo /usr/bin/chef-client'						
+			done
+			;;
+			esac
+		;;
+	HARD)
+			echo -n "Restarting late chef-client hosts... one last time."
+			for ip in $late_hosts;
+                        do
+                                echo "${ip} - $date - restart LATE chef-client - SOFT"  >> /tmp/eventhandlers
+                                ssh -q -t -o StrictHostKeyChecking=no	nagios@${ip} 'sudo /sbin/service chef-client	stop ; sudo /sbin/service chef-client start ; sudo /usr/bin/chef-client'
+			done
+			;;
+			esac
+       		;;
+
+
+CRITICAL)
+        
+	case "$2" in
+        SOFT)
+               	case "$3" in
+               	3)
+                  	echo -n "Restarting DEAD chef-client hosts (3rd soft critical state)..."
+                        for ip in $dead_hosts;
+                        do
+                          	echo "${ip} - $date - restart DEAD chef-client - SOFT"  >> /tmp/eventhandlers
+                                ssh -q -t -o StrictHostKeyChecking=no nagios@${ip} 'sudo /sbin/service chef-client stop ; sudo /sbin/service chef-client start ; sudo /usr/bin/chef-client'
+			done        
+                        ;;
+			esac
+		;;
+
+        HARD)
+                        echo -n "Restarting DEAD chef-client hosts... one last time."
+                        for ip in $dead_hosts;
+                        do
+                          	echo "${ip} - $date - restart DEAD chef-client - SOFT"  >> /tmp/eventhandlers
+                                ssh -q -t -o StrictHostKeyChecking=no nagios@${ip} 'sudo /sbin/service chef-client stop ; sudo /sbin/service chef-client start ; sudo /usr/bin/chef-client'
+                	done
+ 	               	;;
+			esac
+		;;
+esac
+exit 0
