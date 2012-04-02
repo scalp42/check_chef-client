@@ -4,7 +4,7 @@ Nagios check for a host running chef-client as a service. Also comes with a rest
 
 # REQUIREMENTS:
 
-You need to add Nagios master as a workstation in Chef, as it's using knife command to perform the check. Please note that the check is meant to be ran from the Nagios server (hence "localhost").
+You need to add Nagios master as a workstation in Chef, as it's using knife command to perform the check. Please note that the check is meant to be ran from the Nagios server (hence "localhost").  
 You also need to make sure that user "nagios" can ssh into the hosts failing.
 
 # USAGE:
