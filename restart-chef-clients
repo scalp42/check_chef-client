@@ -72,7 +72,7 @@ CRITICAL)
                         echo -n "Restarting DEAD chef-client hosts... one last time."
                         for ip in $dead_hosts;
                         do
-                          	echo "${ip} - $date - restart DEAD chef-client - SOFT"  >> /tmp/eventhandlers
+                          	echo "${ip} - $date - restart DEAD chef-client - HARD"  >> /tmp/eventhandlers
                                 ssh -q -t -o StrictHostKeyChecking=no nagios@${ip} 'sudo /sbin/service chef-client stop ; sudo /sbin/service chef-client start ; sudo /usr/bin/chef-client'
                 	done
  	               	;;
